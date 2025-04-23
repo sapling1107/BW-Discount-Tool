@@ -320,7 +320,7 @@ renderTable();
 
       books.forEach((book, index) => {
         const final = Math.round(book.finalPay * extraDiscount);
-        const reward = Math.round(book.discounted * (book.pointRate + bonusRate));
+        const reward = Math.round(final * (book.pointRate + bonusRate));
 
         totalOriginal += book.originalPrice;
         totalRealPay += final;

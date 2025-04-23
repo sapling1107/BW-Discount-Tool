@@ -16,6 +16,9 @@
     .table th, .table td {
       vertical-align: middle;
     }
+    .btn-sm {
+      font-size: 0.75rem;
+    }
   </style>
 </head>
 <body>
@@ -66,7 +69,7 @@
         <table class="table table-bordered">
           <thead class="table-light">
             <tr>
-              <th>書名</th><th>原價</th><th>實付</th><th>得點</th><th>折數</th>
+              <th>書名</th><th>原價</th><th>實付</th><th>得點</th><th>折數</th><th>操作</th>
             </tr>
           </thead>
           <tbody id="bookTableBody"></tbody>
@@ -98,12 +101,17 @@
       renderTable();
     });
 
+    function deleteBook(index) {
+      books.splice(index, 1);
+      renderTable();
+    }
+
     function renderTable() {
       const tbody = document.getElementById("bookTableBody");
       tbody.innerHTML = "";
 
       let totalOriginal = 0, totalPay = 0, totalPoint = 0;
-      books.forEach(book => {
+      books.forEach((book, index) => {
         totalOriginal += book.originalPrice;
         totalPay += book.finalPay;
         totalPoint += book.reward;
@@ -113,13 +121,14 @@
           <td>${book.finalPay.toFixed(2)}</td>
           <td>${book.reward.toFixed(2)}</td>
           <td>${(book.actualDiscount * 100).toFixed(2)}%</td>
+          <td><button class='btn btn-sm btn-danger' onclick='deleteBook(${index})'>刪除</button></td>
         </tr>`;
         tbody.innerHTML += tr;
       });
 
-      const avgDiscount = (totalPay / totalOriginal) * 100;
+      const avgDiscount = totalOriginal ? (totalPay / totalOriginal) * 100 : 0;
       document.getElementById("summary").textContent = `總原價：${totalOriginal.toFixed(2)} 元｜總實付：${totalPay.toFixed(2)} 元｜總得點：${totalPoint.toFixed(2)} 點｜平均折數：${avgDiscount.toFixed(2)}%`;
-      document.getElementById("resultCard").style.display = "block";
+      document.getElementById("resultCard").style.display = books.length ? "block" : "none";
     }
   </script>
 </body>

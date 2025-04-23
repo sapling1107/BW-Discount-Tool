@@ -19,6 +19,11 @@
     .btn-sm {
       font-size: 0.75rem;
     }
+    .label-col {
+      font-size: 0.85rem;
+      color: #6c757d;
+      margin-bottom: 0.25rem;
+    }
   </style>
 </head>
 <body>
@@ -103,16 +108,20 @@
       row.className = "row g-2 mb-2";
       row.innerHTML = `
         <div class="col">
-          <input type="number" class="form-control" placeholder="滿額金額（元）" id="threshold-${id}">
+          <div class="label-col">滿額金額（元）</div>
+          <input type="number" class="form-control" id="threshold-${id}">
         </div>
         <div class="col">
-          <input type="number" class="form-control" placeholder="打折 %（例如 95）" id="discount-${id}">
+          <div class="label-col">打折 %（例如 95）</div>
+          <input type="number" class="form-control" id="discount-${id}">
         </div>
         <div class="col">
-          <input type="number" class="form-control" placeholder="現折金額（元）" id="reduce-${id}" value="0">
+          <div class="label-col">現折金額（元）</div>
+          <input type="number" class="form-control" id="reduce-${id}" value="0">
         </div>
         <div class="col">
-          <input type="number" class="form-control" placeholder="額外送點（點數）" id="gift-${id}" value="0">
+          <div class="label-col">額外送點（點數）</div>
+          <input type="number" class="form-control" id="gift-${id}" value="0">
         </div>
       `;
       container.appendChild(row);

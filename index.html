@@ -6,9 +6,39 @@
   <title>BookWalker 折扣計算工具</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
+    :root {
+      color-scheme: light dark;
+    }
     body {
       font-family: "GenSeki Gothic", sans-serif;
       background-color: #f4f8f5;
+      color: #1e1e1e;
+    }
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #1e1e1e;
+        color: #e4e4e4;
+      }
+      .card {
+        background-color: #2a2a2a;
+        border: 1px solid #444;
+      }
+      .form-control {
+        background-color: #333;
+        color: #fff;
+        border: 1px solid #555;
+      }
+      .form-control::placeholder {
+        color: #aaa;
+      }
+      .btn-success {
+        background-color: #57b773;
+        border-color: #57b773;
+      }
+      .btn-secondary {
+        background-color: #666;
+        border-color: #666;
+      }
     }
     .card {
       margin-top: 2rem;
@@ -31,10 +61,10 @@
       color: #6c757d;
       margin-bottom: 0.25rem;
     }
-    @media (max-width: 768px) {
-      .form-group-mobile {
-        margin-bottom: 1rem;
-      }
+    .threshold-group {
+      border-bottom: 1px dashed #ccc;
+      padding-bottom: 1rem;
+      margin-bottom: 1rem;
     }
   </style>
 </head>
@@ -46,28 +76,28 @@
       <div class="card-body">
         <form id="bookForm">
           <div class="row g-3">
-            <div class="col-md-6 col-12 form-group-mobile">
+            <div class="col-md-6 col-12">
               <label class="form-label">書名（選填）</label>
               <input type="text" class="form-control" id="title">
             </div>
-            <div class="col-md-3 col-6 form-group-mobile">
+            <div class="col-md-3 col-6">
               <label class="form-label">原價（元）</label>
               <input type="number" class="form-control" id="originalPrice" required>
             </div>
-            <div class="col-md-3 col-6 form-group-mobile">
+            <div class="col-md-3 col-6">
               <label class="form-label">折扣率 %（如 74）</label>
               <input type="number" class="form-control" id="discountRate" value="100">
             </div>
 
-            <div class="col-md-4 col-6 form-group-mobile">
+            <div class="col-md-4 col-6">
               <label class="form-label">使用點數（元）</label>
               <input type="number" class="form-control" id="pointUsed" value="0">
             </div>
-            <div class="col-md-4 col-6 form-group-mobile">
+            <div class="col-md-4 col-6">
               <label class="form-label">折價券金額（元）</label>
               <input type="number" class="form-control" id="coupon" value="0">
             </div>
-            <div class="col-md-4 col-12 form-group-mobile">
+            <div class="col-md-4 col-12">
               <label class="form-label">原始贈點 %（如 10）</label>
               <input type="number" class="form-control" id="pointRate" value="10">
             </div>
@@ -117,27 +147,27 @@
     function addThreshold() {
       const id = thresholds.length;
       const container = document.getElementById("thresholds");
-      const row = document.createElement("div");
-      row.className = "row g-2 mb-2";
-      row.innerHTML = `
-        <div class="col-6 col-md-3">
-          <div class="label-col">滿額金額（元）</div>
+      const block = document.createElement("div");
+      block.className = "row threshold-group g-3";
+      block.innerHTML = `
+        <div class="col-12 col-md-3">
+          <label class="form-label">滿額金額（元）</label>
           <input type="number" class="form-control" id="threshold-${id}">
         </div>
-        <div class="col-6 col-md-3">
-          <div class="label-col">打折 %（例如 95）</div>
+        <div class="col-12 col-md-3">
+          <label class="form-label">打折 %（例如 95）</label>
           <input type="number" class="form-control" id="discount-${id}">
         </div>
-        <div class="col-6 col-md-3">
-          <div class="label-col">現折金額（元）</div>
+        <div class="col-12 col-md-3">
+          <label class="form-label">現折金額（元）</label>
           <input type="number" class="form-control" id="reduce-${id}" value="0">
         </div>
-        <div class="col-6 col-md-3">
-          <div class="label-col">額外送點（點數）</div>
+        <div class="col-12 col-md-3">
+          <label class="form-label">額外送點（點數）</label>
           <input type="number" class="form-control" id="gift-${id}" value="0">
         </div>
       `;
-      container.appendChild(row);
+      container.appendChild(block);
       thresholds.push(id);
     }
   </script>

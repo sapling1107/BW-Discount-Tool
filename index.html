@@ -146,18 +146,27 @@
     </div>
 
     <div class="card" id="resultCard" style="display:none;">
-      <div class="card-body">
-        <h5>書籍清單</h5>
-        <div class="table-responsive">
-          <table class="table table-bordered">
-            <thead class="table-light">
-              <tr>
-                <th>書名</th><th>原價</th><th>實付</th><th>得點</th><th>折數</th><th>操作</th>
-              </tr>
-            </thead>
-            <tbody id="bookTableBody"></tbody>
-          </table>
-        </div>
+  <div class="card-body">
+    <h5>書籍清單</h5>
+    <div class="table-responsive">
+      <table class="table table-bordered">
+        <thead class="table-light">
+          <tr>
+            <th>書名</th>
+            <th>原價</th>
+            <th>實付</th>
+            <th>得點</th>
+            <th>折數</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="bookTableBody"></tbody>
+      </table>
+    </div>
+    <hr>
+    <p id="summary"></p>
+  </div>
+</div>
         <hr>
         <p id="summary"></p>
       </div>
@@ -212,6 +221,76 @@
       const block = button.parentNode;
       block.remove();
     }
-  </script>
+
+    document.getElementById("bookForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const title = document.getElementById("title").value.trim() || "（未命名）";
+      const originalPrice = parseFloat(document.getElementById("originalPrice").value);
+      const discountRate = parseFloat(document.getElementById("discountRate").value) / 100;
+      const pointUsed = parseFloat(document.getElementById("pointUsed").value);
+      const coupon = parseFloat(document.getElementById("coupon").value);
+      const pointRate = parseFloat(document.getElementById("pointRate").value) / 100;
+
+      const discounted = originalPrice * discountRate;
+      const afterCoupon = Math.max(discounted - coupon, 0);
+      const finalPay = Math.max(afterCoupon - pointUsed, 0);
+
+      books.push({ title, originalPrice, discounted, finalPay, pointRate });
+      renderTable();
+    });
+
+    function renderTable() {
+      const bonusRate = parseFloat(document.getElementById("bonusPointRate").value) / 100;
+      let totalPay = 0, totalOriginal = 0;
+      books.forEach(book => totalPay += book.finalPay);
+
+      let extraDiscount = 1, extraReduce = 0, extraGift = 0;
+      document.querySelectorAll('[id^="threshold-"]').forEach((el, i) => {
+  const id = el.id.split('-')[1];
+  const min = parseFloat(document.getElementById(`threshold-${id}`)?.value);
+  if (totalPay >= min) {
+    const d = parseFloat(document.getElementById(`discount-${id}`)?.value) / 100 || 1;
+    const r = parseFloat(document.getElementById(`reduce-${id}`)?.value) || 0;
+    const g = parseFloat(document.getElementById(`gift-${id}`)?.value) || 0;
+    if (d < extraDiscount) extraDiscount = d;
+    extraReduce += r;
+    extraGift += g;
+  }
+});
+
+      const tbody = document.getElementById("bookTableBody");
+      tbody.innerHTML = "";
+      let totalRealPay = 0, totalReward = Math.round(extraGift);
+
+      books.forEach((book, index) => {
+        const final = Math.round(book.finalPay * extraDiscount);
+        const reward = Math.round(book.discounted * (book.pointRate + bonusRate));
+
+        totalOriginal += book.originalPrice;
+        totalRealPay += final;
+        totalReward += reward;
+
+        const tr = `<tr>
+          <td>${book.title}</td>
+          <td>${Math.round(book.originalPrice)}</td>
+          <td>${final}</td>
+          <td>${reward}</td>
+          <td>${((final / book.originalPrice) * 100).toFixed(2)}%</td>
+          <td><button class='btn btn-sm btn-danger' onclick='deleteBook(${index})'>刪除</button></td>
+        </tr>`;
+        tbody.innerHTML += tr;
+      });
+
+      totalRealPay -= extraReduce;
+      const avgDiscount = totalOriginal ? (totalRealPay / totalOriginal) * 100 : 0;
+      document.getElementById("summary").textContent = `總原價：${Math.round(totalOriginal)} 元｜總實付：${Math.round(totalRealPay)} 元｜總得點：${totalReward} 點｜平均折數：${avgDiscount.toFixed(2)}%`;
+      document.getElementById("resultCard").style.display = books.length ? "block" : "none";
+    }
+  function deleteBook(index) {
+  books.splice(index, 1);
+  renderTable();
+}
+
+</script>
 </body>
 </html>

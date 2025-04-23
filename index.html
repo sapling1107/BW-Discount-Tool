@@ -15,9 +15,57 @@
       color: #1e1e1e;
     }
     body.dark {
-      background-color: #1e1e1e;
-      color: #e4e4e4;
-    }
+  background-color: #1e1e1e;
+  color: #e4e4e4;
+}
+
+body.dark .card-body,
+body.dark .card-body h5,
+body.dark .form-label,
+body.dark .btn,
+body.dark .table,
+body.dark .table th,
+body.dark .table td,
+body.dark #summary,
+body.dark .table-bordered td,
+body.dark .table-bordered th {
+  color: #e4e4e4 !important;
+}
+
+body.dark .table-light,
+body.dark .table-bordered,
+body.dark .table td,
+body.dark .table th {
+  background-color: #2a2a2a !important;
+  border-color: #444 !important;
+}
+
+body.dark .card-body,
+body.dark .card-body h5,
+body.dark .form-label,
+body.dark .btn,
+body.dark .table,
+body.dark .table th,
+body.dark .table td,
+body.dark #summary {
+  color: #e4e4e4;
+}
+
+body.dark .table-light {
+  background-color: #2a2a2a !important;
+  color: #e4e4e4 !important;
+  border-color: #555 !important;
+}
+
+body.dark .card-body,
+body.dark .card-body h5,
+body.dark .form-label,
+body.dark .btn,
+body.dark .table,
+body.dark .table th,
+body.dark .table td {
+  color: #e4e4e4;
+}
     body.dark .card {
       background-color: #2a2a2a;
       border: 1px solid #444;
@@ -93,7 +141,9 @@
   </style>
 </head>
 <body>
-  <button class="btn btn-outline-secondary btn-sm mode-toggle" onclick="toggleMode()">切換模式</button>
+  <button class="btn btn-outline-secondary btn-sm mode-toggle" onclick="toggleMode()" aria-label="切換模式">
+  <span id="modeIcon">🌙</span>
+</button>
   <div class="container">
     <h1 class="mt-4 text-center">BookWalker 折扣計算器</h1>
 
@@ -164,7 +214,7 @@
       </table>
     </div>
     <hr>
-    <p id="summary"></p>
+    <p id="summary" class="mt-3"></p>
   </div>
 </div>
         <hr>
@@ -178,16 +228,21 @@
     const thresholds = [];
 
     function toggleMode() {
-      const dark = document.body.classList.toggle("dark");
-      localStorage.setItem("bw-mode", dark ? "dark" : "light");
-    }
+  const dark = document.body.classList.toggle("dark");
+  localStorage.setItem("bw-mode", dark ? "dark" : "light");
+  document.getElementById("modeIcon").textContent = dark ? "☀️" : "🌙";
+}
 
     function loadMode() {
       const mode = localStorage.getItem("bw-mode");
       if (mode === "dark") document.body.classList.add("dark");
     }
 
-    window.onload = loadMode;
+    window.onload = () => {
+  loadMode();
+  const isDark = document.body.classList.contains("dark");
+  document.getElementById("modeIcon").textContent = isDark ? "☀️" : "🌙";
+};
 
     function addThreshold() {
       const id = thresholds.length;
@@ -285,6 +340,7 @@ renderTable();
       totalRealPay -= extraReduce;
       const avgDiscount = totalOriginal ? (totalRealPay / totalOriginal) * 100 : 0;
       document.getElementById("summary").textContent = `總原價：${Math.round(totalOriginal)} 元｜總實付：${Math.round(totalRealPay)} 元｜總得點：${totalReward} 點｜平均折數：${avgDiscount.toFixed(2)}%`;
+document.getElementById("summary").style.color = document.body.classList.contains("dark") ? "#eee" : "#212529";
       document.getElementById("resultCard").style.display = books.length ? "block" : "none";
     }
   function deleteBook(index) {
@@ -295,4 +351,3 @@ renderTable();
 </script>
 </body>
 </html>
- 

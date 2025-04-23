@@ -38,8 +38,8 @@
               <input type="number" class="form-control" id="originalPrice" required>
             </div>
             <div class="col">
-              <label class="form-label">折扣率（例如 0.74）</label>
-              <input type="number" step="0.01" class="form-control" id="discountRate" value="1">
+              <label class="form-label">折扣率（例如 74 表示 74%）</label>
+              <input type="number" class="form-control" id="discountRate" value="100">
             </div>
           </div>
 
@@ -53,8 +53,8 @@
               <input type="number" class="form-control" id="coupon" value="0">
             </div>
             <div class="col">
-              <label class="form-label">原始贈點比例（例如 0.1）</label>
-              <input type="number" step="0.01" class="form-control" id="pointRate" value="0.1">
+              <label class="form-label">原始贈點 %（例如 10 表示 10%）</label>
+              <input type="number" class="form-control" id="pointRate" value="10">
             </div>
           </div>
 
@@ -67,8 +67,8 @@
       <div class="card-body">
         <h5>進階設定</h5>
         <div class="mb-3">
-          <label class="form-label">活動贈點加碼（例如 0.1 表示額外 10%）</label>
-          <input type="number" step="0.01" class="form-control" id="bonusPointRate" value="0">
+          <label class="form-label">活動贈點加碼 %（例如 10 表示加碼 10%）</label>
+          <input type="number" class="form-control" id="bonusPointRate" value="0">
         </div>
         <div id="thresholds"></div>
         <button class="btn btn-secondary btn-sm" onclick="addThreshold()">＋新增滿額條件</button>
@@ -103,16 +103,16 @@
       row.className = "row g-2 mb-2";
       row.innerHTML = `
         <div class="col">
-          <input type="number" class="form-control" placeholder="滿額金額" id="threshold-${id}">
+          <input type="number" class="form-control" placeholder="滿額金額（元）" id="threshold-${id}">
         </div>
         <div class="col">
-          <input type="number" class="form-control" step="0.01" placeholder="打折（如0.95）" id="discount-${id}">
+          <input type="number" class="form-control" placeholder="打折 %（例如 95）" id="discount-${id}">
         </div>
         <div class="col">
-          <input type="number" class="form-control" placeholder="現折金額" id="reduce-${id}" value="0">
+          <input type="number" class="form-control" placeholder="現折金額（元）" id="reduce-${id}" value="0">
         </div>
         <div class="col">
-          <input type="number" class="form-control" placeholder="贈送點數" id="gift-${id}" value="0">
+          <input type="number" class="form-control" placeholder="額外送點（點數）" id="gift-${id}" value="0">
         </div>
       `;
       container.appendChild(row);
@@ -123,10 +123,10 @@
       e.preventDefault();
       const title = document.getElementById("title").value.trim() || "（未命名）";
       const originalPrice = parseFloat(document.getElementById("originalPrice").value);
-      const discountRate = parseFloat(document.getElementById("discountRate").value);
+      const discountRate = parseFloat(document.getElementById("discountRate").value) / 100;
       const pointUsed = parseFloat(document.getElementById("pointUsed").value);
       const coupon = parseFloat(document.getElementById("coupon").value);
-      const pointRate = parseFloat(document.getElementById("pointRate").value);
+      const pointRate = parseFloat(document.getElementById("pointRate").value) / 100;
 
       const discounted = originalPrice * discountRate;
       const afterCoupon = Math.max(discounted - coupon, 0);
@@ -142,7 +142,7 @@
     }
 
     function renderTable() {
-      const bonusRate = parseFloat(document.getElementById("bonusPointRate").value);
+      const bonusRate = parseFloat(document.getElementById("bonusPointRate").value) / 100;
       let totalPay = 0, totalOriginal = 0;
       books.forEach(book => totalPay += book.finalPay);
 
@@ -150,7 +150,7 @@
       thresholds.forEach(id => {
         const min = parseFloat(document.getElementById(`threshold-${id}`).value);
         if (totalPay >= min) {
-          const d = parseFloat(document.getElementById(`discount-${id}`).value) || 1;
+          const d = parseFloat(document.getElementById(`discount-${id}`).value) / 100 || 1;
           const r = parseFloat(document.getElementById(`reduce-${id}`).value) || 0;
           const g = parseFloat(document.getElementById(`gift-${id}`).value) || 0;
           if (d < extraDiscount) extraDiscount = d;
@@ -161,11 +161,11 @@
 
       const tbody = document.getElementById("bookTableBody");
       tbody.innerHTML = "";
-      let totalRealPay = 0, totalReward = extraGift;
+      let totalRealPay = 0, totalReward = Math.round(extraGift);
 
       books.forEach((book, index) => {
-        const final = book.finalPay * extraDiscount;
-        const reward = Math.floor(book.discounted * (book.pointRate + bonusRate) * 100) / 100;
+        const final = Math.round(book.finalPay * extraDiscount);
+        const reward = Math.round(book.discounted * (book.pointRate + bonusRate));
 
         totalOriginal += book.originalPrice;
         totalRealPay += final;
@@ -173,9 +173,9 @@
 
         const tr = `<tr>
           <td>${book.title}</td>
-          <td>${book.originalPrice.toFixed(2)}</td>
-          <td>${final.toFixed(2)}</td>
-          <td>${reward.toFixed(2)}</td>
+          <td>${Math.round(book.originalPrice)}</td>
+          <td>${final}</td>
+          <td>${reward}</td>
           <td>${((final / book.originalPrice) * 100).toFixed(2)}%</td>
           <td><button class='btn btn-sm btn-danger' onclick='deleteBook(${index})'>刪除</button></td>
         </tr>`;
@@ -184,7 +184,7 @@
 
       totalRealPay -= extraReduce;
       const avgDiscount = totalOriginal ? (totalRealPay / totalOriginal) * 100 : 0;
-      document.getElementById("summary").textContent = `總原價：${totalOriginal.toFixed(2)} 元｜總實付：${totalRealPay.toFixed(2)} 元｜總得點：${totalReward.toFixed(2)} 點｜平均折數：${avgDiscount.toFixed(2)}%`;
+      document.getElementById("summary").textContent = `總原價：${Math.round(totalOriginal)} 元｜總實付：${Math.round(totalRealPay)} 元｜總得點：${totalReward} 點｜平均折數：${avgDiscount.toFixed(2)}%`;
       document.getElementById("resultCard").style.display = books.length ? "block" : "none";
     }
   </script>

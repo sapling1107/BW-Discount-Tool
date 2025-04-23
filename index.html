@@ -138,7 +138,7 @@
         <h5>進階設定</h5>
         <div class="mb-3">
           <label class="form-label">活動贈點加碼 %（例如 10 表示加碼 10%）</label>
-          <input type="number" class="form-control" id="bonusPointRate" value="0">
+          <input type="number" class="form-control" id="bonusPointRate" onchange="renderTable()">
         </div>
         <div id="thresholds"></div>
         <button class="btn btn-secondary btn-sm" onclick="addThreshold()">＋新增滿額條件</button>
@@ -198,22 +198,23 @@
         <button class="remove-threshold-btn" onclick="removeThreshold(this)">×</button>
         <div class="col-12 col-md-3">
           <label class="form-label">滿額金額（元）</label>
-          <input type="number" class="form-control" id="threshold-${id}">
+          <input type="number" class="form-control" id="threshold-${id}" oninput="renderTable()">
         </div>
         <div class="col-12 col-md-3">
           <label class="form-label">打折 %（例如 95）</label>
-          <input type="number" class="form-control" id="discount-${id}">
+          <input type="number" class="form-control" id="discount-${id}" oninput="renderTable()">
         </div>
         <div class="col-12 col-md-3">
           <label class="form-label">現折金額（元）</label>
-          <input type="number" class="form-control" id="reduce-${id}" value="0">
+          <input type="number" class="form-control" id="reduce-${id}" value="0" oninput="renderTable()">
         </div>
         <div class="col-12 col-md-3">
           <label class="form-label">額外送點（點數）</label>
-          <input type="number" class="form-control" id="gift-${id}" value="0">
+          <input type="number" class="form-control" id="gift-${id}" value="0" oninput="renderTable()">
         </div>
       `;
       container.appendChild(block);
+renderTable();
       thresholds.push(id);
     }
 
@@ -240,7 +241,7 @@
     });
 
     function renderTable() {
-      const bonusRate = parseFloat(document.getElementById("bonusPointRate").value) / 100;
+      const bonusRate = (parseFloat(document.getElementById("bonusPointRate").value) || 0) / 100;
       let totalPay = 0, totalOriginal = 0;
       books.forEach(book => totalPay += book.finalPay);
 

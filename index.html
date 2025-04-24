@@ -236,7 +236,7 @@ body.dark .table td {
     function toggleMode() {
   const dark = document.body.classList.toggle("dark");
   localStorage.setItem("bw-mode", dark ? "dark" : "light");
-  document.getElementById("modeIcon").textContent = dark ? "☀️" : "🌙";
+  document.getElementById("modeIcon").textContent = dark ? "☀" : "🌙";
 }
 
     function loadMode() {
@@ -247,7 +247,7 @@ body.dark .table td {
     window.onload = () => {
   loadMode();
   const isDark = document.body.classList.contains("dark");
-  document.getElementById("modeIcon").textContent = isDark ? "☀️" : "🌙";
+  document.getElementById("modeIcon").textContent = isDark ? "☀" : "🌙";
 };
 
     function addThreshold() {
@@ -309,11 +309,11 @@ renderTable();
       let extraDiscount = 1, extraReduce = 0, extraGift = 0;
       document.querySelectorAll('[id^="threshold-"]').forEach((el, i) => {
   const id = el.id.split('-')[1];
-  const min = parseFloat(document.getElementById(`threshold-${id}`)?.value);
+  const min = parseFloat(document.getElementById(threshold-${id})?.value);
   if (totalPay >= min) {
-    const d = parseFloat(document.getElementById(`discount-${id}`)?.value) / 100 || 1;
-    const r = parseFloat(document.getElementById(`reduce-${id}`)?.value) || 0;
-    const g = parseFloat(document.getElementById(`gift-${id}`)?.value) || 0;
+    const d = parseFloat(document.getElementById(discount-${id})?.value) / 100 || 1;
+    const r = parseFloat(document.getElementById(reduce-${id})?.value) || 0;
+    const g = parseFloat(document.getElementById(gift-${id})?.value) || 0;
     if (d < extraDiscount) extraDiscount = d;
     extraReduce += r;
     extraGift += g;
@@ -345,7 +345,7 @@ renderTable();
 
       totalRealPay -= extraReduce;
       const avgDiscount = totalOriginal ? (totalRealPay / totalOriginal) * 100 : 0;
-      document.getElementById("summary").textContent = `總原價：${Math.round(totalOriginal)} 元｜總實付：${Math.round(totalRealPay)} 元｜總得點：${totalReward} 點｜平均折數：${avgDiscount.toFixed(2)}%`;
+      document.getElementById("summary").textContent = 總原價：${Math.round(totalOriginal)} 元｜總實付：${Math.round(totalRealPay)} 元｜總得點：${totalReward} 點｜平均折數：${avgDiscount.toFixed(2)}%;
 document.getElementById("summary").style.color = document.body.classList.contains("dark") ? "#eee" : "#212529";
       document.getElementById("resultCard").style.display = books.length ? "block" : "none";
     }

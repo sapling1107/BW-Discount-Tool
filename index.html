@@ -193,13 +193,17 @@ body.dark .table td {
       <div class="card-body">
         <h5>進階設定</h5>
         <div class="mb-3">
+          <label class="form-label">總贈點率 %（一般1%＋等級加碼，例如2%）</label>
+          <input type="number" class="form-control" id="totalPointRate" value="2" onchange="renderTable()">
+        </div>
+        <div class="mb-3">
           <label class="form-label">活動贈點加碼 %（例如 10 表示加碼 10%）</label>
           <input type="number" class="form-control" id="bonusPointRate" onchange="renderTable()">
         </div>
         <div id="thresholds"></div>
         <button class="btn btn-secondary btn-sm" onclick="addThreshold()">＋新增滿額條件</button>
-      </div>
-    </div>
+        </div>
+        </div>
 
     <div class="card" id="resultCard" style="display:none;">
   <div class="card-body">
@@ -291,19 +295,21 @@ renderTable();
       const discountRate = parseFloat(document.getElementById("discountRate").value) / 100;
       const pointUsed = parseFloat(document.getElementById("pointUsed").value);
       const coupon = parseFloat(document.getElementById("coupon").value);
-      const pointRate = parseFloat(document.getElementById("pointRate").value) / 100;
+      const extraPointRate = parseFloat(document.getElementById("extraPointRate").value) || 0;
 
       const discounted = originalPrice * discountRate;
       const afterCoupon = Math.max(discounted - coupon, 0);
       const finalPay = Math.max(afterCoupon - pointUsed, 0);
 
-      books.push({ title, originalPrice, discounted, finalPay, pointRate });
+      books.push({ title, originalPrice, discounted, finalPay, extraPointRate });
       renderTable();
     });
 
     function renderTable() {
       const bonusRate = (parseFloat(document.getElementById("bonusPointRate").value) || 0) / 100;
-      let totalPay = 0, totalOriginal = 0;
+      const totalPointRate = (parseFloat(document.getElementById("totalPointRate")?.value) || 2) / 100;
+      
+      let totalPay = 0;
       books.forEach(book => totalPay += book.finalPay);
 
       let extraDiscount = 1, extraReduce = 0, extraGift = 0;
@@ -322,21 +328,22 @@ renderTable();
 
       const tbody = document.getElementById("bookTableBody");
       tbody.innerHTML = "";
-      let totalRealPay = 0, totalReward = Math.round(extraGift);
+
+      let totalRealPayBeforeReduce = 0;
+      let totalOriginal = 0;
+      let extraPointsTotal = 0;
 
       books.forEach((book, index) => {
         const final = Math.round(book.finalPay * extraDiscount);
-        const reward = Math.round(final * (book.pointRate + bonusRate));
-
         totalOriginal += book.originalPrice;
-        totalRealPay += final;
-        totalReward += reward;
+        totalRealPayBeforeReduce += final;
+        extraPointsTotal += Math.round(final * (book.extraPointRate || 0) / 100);
 
         const tr = `<tr>
           <td>${book.title}</td>
           <td>${Math.round(book.originalPrice)}</td>
           <td>${final}</td>
-          <td>${reward}</td>
+          <td>-</td>
           <td>${((final / book.originalPrice) * 100).toFixed(2)}%</td>
           <td><button class='btn btn-sm btn-danger' onclick='deleteBook(${index})'>刪除</button></td>
         </tr>`;
@@ -344,10 +351,14 @@ renderTable();
       });
 
       const totalRealPay = totalRealPayBeforeReduce - extraReduce;
-      const totalReward = Math.round(totalRealPay * (avgPointRate + bonusRate) * 10) / 10;
+      const totalReward = Math.round(totalRealPay * (totalPointRate + bonusRate) * 10) / 10 + extraPointsTotal;
       const avgDiscount = totalOriginal ? (totalRealPay / totalOriginal) * 100 : 0;
-      document.getElementById("summary").textContent = `總原價：${Math.round(totalOriginal)} 元｜總實付：${Math.round(totalRealPay)} 元｜總得點：${totalReward} 點｜平均折數：${avgDiscount.toFixed(2)}%`;
-document.getElementById("summary").style.color = document.body.classList.contains("dark") ? "#eee" : "#212529";
+
+      document.getElementById("summary").textContent =
+       `總原價：${Math.round(totalOriginal)} 元｜總實付：${Math.round(totalRealPay)} 元｜總得點：${totalReward} 點｜平均折數：${avgDiscount.toFixed(2)}%`;
+      document.getElementById("summary").style.color =
+       document.body.classList.contains("dark") ? "#eee" : "#212529";
+       
       document.getElementById("resultCard").style.display = books.length ? "block" : "none";
     }
   function deleteBook(index) {
